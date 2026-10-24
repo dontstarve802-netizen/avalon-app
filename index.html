@@ -1,227 +1,462 @@
+cat << 'EOF' > /sdcard/Download/index.html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Resistance: Avalon</title>
+  <title>The Resistance: Avalon</title>
   <style>
-    :root { --bg: #0f172a; --card: #1e293b; --good: #2563eb; --evil: #dc2626; --gold: #f59e0b; --text: #f8fafc; --muted: #94a3b8; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; display: flex; justify-content: center; }
-    .container { width: 100%; max-width: 440px; }
-    h1 { color: var(--gold); text-align: center; font-size: 22px; margin-bottom: 16px; letter-spacing: 1px; }
-    .card { background: var(--card); border-radius: 12px; padding: 18px; border: 1px solid #334155; margin-bottom: 14px; }
-    .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; margin-top: 10px; cursor: pointer; color: #fff; }
-    .btn-gold { background: var(--gold); color: #000; }
-    .btn-blue { background: var(--good); }
-    .btn-red { background: var(--evil); }
-    .btn-opt { background: transparent; border: 2px solid #475569; color: var(--text); }
-    .btn-opt.active { border-color: var(--gold); background: rgba(245, 158, 11, 0.2); }
-    input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #fff; margin: 8px 0; }
-    .board { display: flex; gap: 6px; margin-bottom: 14px; }
-    .slot { flex: 1; background: var(--card); border: 2px solid #334155; border-radius: 8px; text-align: center; padding: 8px 2px; }
-    .slot.cur { border-color: var(--gold); }
-    .slot.ok { border-color: var(--good); background: rgba(37,99,235,0.2); }
-    .slot.fail { border-color: var(--evil); background: rgba(220,38,38,0.2); }
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #161f30;
+      --good: #3b82f6;
+      --good-glow: rgba(59, 130, 246, 0.4);
+      --evil: #ef4444;
+      --evil-glow: rgba(239, 68, 68, 0.4);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.35);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #223049;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: radial-gradient(circle at top, #1a233a 0%, var(--bg) 100%); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 14px; overflow-x: hidden; }
+    .container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; }
+
+    .header { text-align: center; padding: 6px 0; }
+    .header h1 { font-size: 20px; font-weight: 900; letter-spacing: 3px; color: var(--gold); text-shadow: 0 0 16px var(--gold-glow); }
+
+    .board-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    .board { display: flex; gap: 8px; justify-content: space-between; }
+    .slot { flex: 1; background: #0f1626; border: 2px solid var(--border); border-radius: 10px; padding: 8px 2px; text-align: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .slot.active { border-color: var(--gold); box-shadow: 0 0 12px var(--gold-glow); transform: translateY(-2px); }
+    .slot.success { border-color: var(--good); background: rgba(59, 130, 246, 0.15); box-shadow: 0 0 10px var(--good-glow); }
+    .slot.fail { border-color: var(--evil); background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 10px var(--evil-glow); }
+    .slot-sub { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .slot-val { font-size: 15px; font-weight: 800; margin-top: 2px; }
+
+    .trackers { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+    .trackers strong { color: var(--text); }
+
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); animation: slideIn 0.35s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; color: #fff; margin-top: 10px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; box-shadow: 0 4px 14px var(--gold-glow); }
+    .btn-good { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 14px var(--good-glow); }
+    .btn-evil { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 14px var(--evil-glow); }
+    .btn-ghost { background: transparent; border: 2px solid var(--border); color: var(--text); }
+    .btn-ghost.selected { border-color: var(--gold); background: rgba(245, 158, 11, 0.15); color: var(--gold); }
+
+    .flip-box { perspective: 1000px; margin: 16px 0; }
+    .flip-inner { position: relative; width: 100%; min-height: 160px; text-align: center; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+    .flip-inner.flipped { transform: rotateY(180deg); }
+    .flip-front, .flip-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 16px; border: 1px solid var(--border); }
+    .flip-front { background: #0f1626; color: var(--muted); }
+    .flip-back { background: #1a2438; transform: rotateY(180deg); }
+
+    input[type="text"] { width: 100%; padding: 12px; background: #0b0f19; border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 14px; margin: 8px 0; }
+    .vote-grid { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+    .vote-row { display: flex; justify-content: space-between; align-items: center; background: #0f1626; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); }
+    .vote-toggles { display: flex; gap: 6px; }
+    .btn-mini { padding: 8px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; color: #fff; background: #1e293b; }
+    .btn-mini.active-good { background: var(--good); box-shadow: 0 0 8px var(--good-glow); }
+    .btn-mini.active-evil { background: var(--evil); box-shadow: 0 0 8px var(--evil-glow); }
   </style>
 </head>
 <body>
 <div class="container">
-  <h1>RESISTANCE: AVALON</h1>
-  <div id="boardBox" style="display:none;"></div>
-  <div id="ui"></div>
+  <div class="header">
+    <h1>RESISTANCE: AVALON</h1>
+  </div>
+  <div id="boardArea"></div>
+  <div id="app"></div>
 </div>
 
 <script>
-const CFG = { 5:[3,2,[2,3,2,3,3],false], 6:[4,2,[2,3,4,3,4],false], 7:[4,3,[2,3,3,4,4],true], 8:[5,3,[3,4,4,5,5],true], 9:[6,3,[3,4,4,5,5],true], 10:[6,4,[3,4,4,5,5],true] };
-let G = { players:[], roles:{}, quest:0, res:[], streak:0, lIdx:0, sel:[], qVotes:[] };
+function haptic(ms=35) { if(navigator.vibrate) navigator.vibrate(ms); }
 
-function renderSetup() {
-  document.getElementById('boardBox').style.display = 'none';
-  document.getElementById('ui').innerHTML = `
+const CONFIGS = {
+  5:  { good: 3, evil: 2, quests: [2, 3, 2, 3, 3], twoFails: false },
+  6:  { good: 4, evil: 2, quests: [2, 3, 4, 3, 4], twoFails: false },
+  7:  { good: 4, evil: 3, quests: [2, 3, 3, 4, 4], twoFails: true  },
+  8:  { good: 5, evil: 3, quests: [3, 4, 4, 5, 5], twoFails: true  },
+  9:  { good: 6, evil: 3, quests: [3, 4, 4, 5, 5], twoFails: true  },
+  10: { good: 6, evil: 4, quests: [3, 4, 4, 5, 5], twoFails: true  }
+};
+
+const ROLES = {
+  "Merlin":            { side: "good", desc: "Kötüleri görür (Mordred hariç). Kimliğini açık etme!" },
+  "Percival":          { side: "good", desc: "Merlin ve Morgana'yı görür, hangisinin kim olduğunu bilmez." },
+  "Loyal Servant":     { side: "good", desc: "Arthur'un sadık hizmetkarı. Özel bilgin yok." },
+  "Assassin":          { side: "evil", desc: "İyiler 3 görev tamamlarsa Merlin'i bularak oyunu kazanır." },
+  "Morgana":           { side: "evil", desc: "Percival'e kendini Merlin gibi gösterir." },
+  "Mordred":           { side: "evil", desc: "Merlin'e görünmez; Merlin seni kötü olarak göremez." },
+  "Minion of Mordred": { side: "evil", desc: "Mordred'in casusu. Görevleri sabote et." }
+};
+
+let G = {
+  players: [],
+  roles: {},
+  questIdx: 0,
+  questResults: [],
+  failTrack: 0,
+  leaderIdx: 0,
+  selectedTeam: [],
+  teamVotes: {},
+  questCards: [],
+  questCardIndex: 0
+};
+
+function renderStart() {
+  document.getElementById('boardArea').innerHTML = '';
+  document.getElementById('app').innerHTML = `
     <div class="card">
-      <h3 style="margin-bottom:8px;">Oyuncu Listesi</h3>
-      <p style="font-size:13px; color:var(--muted)">Virgülle ayırarak 5-10 isim yazın:</p>
-      <input id="namesInp" placeholder="Ahmet, Mehmet, Ayşe, Fatma, Ali">
-      <button class="btn btn-gold" onclick="initGame()">Oyunu Kur ve Başlat</button>
-    </div>`;
+      <h3 style="color:var(--gold); margin-bottom:8px;">Kader Masası Kuruluyor</h3>
+      <p style="font-size:13px; color:var(--muted)">Oyuncu isimlerini virgülle ayırarak girin (5-10 kişi):</p>
+      <input type="text" id="names" placeholder="Ahmet, Mehmet, Selin, Ayşe, Can">
+      <button class="btn btn-gold" onclick="setupGame()">Oyunu Başlat</button>
+    </div>
+  `;
 }
 
-function initGame() {
-  const arr = document.getElementById('namesInp').value.split(',').map(x=>x.trim()).filter(Boolean);
-  if(arr.length < 5 || arr.length > 10) return alert("5 ile 10 oyuncu girilmelidir!");
-  G.players = arr;
-  const c = CFG[arr.length];
-  let deck = ["Merlin","Percival","Assassin","Morgana"];
-  if(c[1] > 2) for(let i=0; i<c[1]-2; i++) deck.push("Minion of Mordred");
-  for(let i=0; i<c[0]-2; i++) deck.push("Loyal Servant");
-  deck.sort(()=>Math.random()-0.5);
-  G.players.forEach((p,i)=>G.roles[p]=deck[i]);
-  G.quest=0; G.res=[]; G.streak=0; G.lIdx = Math.floor(Math.random()*arr.length);
+function setupGame() {
+  haptic(50);
+  const raw = document.getElementById('names').value;
+  const list = raw.split(',').map(s => s.trim()).filter(Boolean);
+  if(list.length < 5 || list.length > 10) return alert("Oyuncu sayısı 5 ile 10 arasında olmalıdır!");
+
+  G.players = list;
+  const cfg = CONFIGS[list.length];
+  
+  let deck = ["Merlin", "Percival", "Assassin", "Morgana"];
+  if(cfg.evil > 2) deck.push("Mordred");
+  if(cfg.evil > 3) deck.push("Minion of Mordred");
+  while(deck.filter(r => ROLES[r].side === "good").length < cfg.good) {
+    deck.push("Loyal Servant");
+  }
+  
+  deck.sort(() => Math.random() - 0.5);
+  G.players.forEach((p, i) => G.roles[p] = deck[i]);
+  
+  G.questIdx = 0;
+  G.questResults = [];
+  G.failTrack = 0;
+  G.leaderIdx = Math.floor(Math.random() * G.players.length);
+  
   stepNight(0);
 }
 
 function stepNight(idx) {
-  if(idx >= G.players.length) return renderTurn();
-  const p = G.players[idx];
-  const r = G.roles[p];
-  const isEvil = ["Assassin","Morgana","Minion of Mordred"].includes(r);
-  const evilList = G.players.filter(x=>["Assassin","Morgana","Minion of Mordred"].includes(G.roles[x]));
-  let extra = "";
-  if(r==="Merlin") extra = "Kötüler: " + evilList.join(', ');
-  else if(r==="Percival") {
-    let cand = G.players.filter(x=>["Merlin","Morgana"].includes(G.roles[x])).sort(()=>Math.random()-0.5);
-    extra = "Merlin/Morgana: " + cand.join(', ');
-  } else if(isEvil) extra = "Kötü Ortaklar: " + evilList.filter(x=>x!==p).join(', ');
-
-  document.getElementById('ui').innerHTML = `
-    <div class="card" style="text-align:center;">
-      <h3>Telefonu ${p} kişisine verin</h3>
-      <button class="btn btn-blue" onclick="this.style.display='none'; document.getElementById('sc').style.display='block';">Bilgiyi Aç</button>
-      <div id="sc" style="display:none; margin-top:12px;">
-        <h2 style="color:${isEvil?'var(--evil)':'var(--good)'}; margin:8px 0;">${r}</h2>
-        <p style="font-size:14px; margin-bottom:8px;">${isEvil?'KÖTÜLER (Mordred)':'İYİLER (Arthur)'}</p>
-        ${extra ? `<div style="background:#0f172a; padding:8px; border-radius:6px; font-size:13px; margin:8px 0;">${extra}</div>` : ''}
-        <button class="btn btn-gold" onclick="stepNight(${idx+1})">Ezberledim, Gizle</button>
-      </div>
-    </div>`;
-}
-
-function updateBoard() {
-  const b = document.getElementById('boardBox');
-  b.style.display = 'flex';
-  b.className = 'board';
-  const sizes = CFG[G.players.length][2];
-  b.innerHTML = sizes.map((s,i)=>{
-    let cls = "slot";
-    let txt = s;
-    if(i === G.quest) cls += " cur";
-    if(G.res[i]===true) { cls += " ok"; txt="✓"; }
-    if(G.res[i]===false) { cls += " fail"; txt="✕"; }
-    return `<div class="${cls}"><div style="font-size:10px; color:var(--muted)">G${i+1}</div><div style="font-weight:bold">${txt}</div></div>`;
-  }).join('');
-}
-
-function renderTurn() {
-  updateBoard();
-  const req = CFG[G.players.length][2][G.quest];
-  const leader = G.players[G.lIdx];
-  G.sel = [];
-  document.getElementById('ui').innerHTML = `
-    <div class="card">
-      <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Red Sayacı: ${G.streak}/5</div>
-      <h3 style="margin-bottom:8px;">Lider: ${leader}</h3>
-      <p style="font-size:13px; margin-bottom:12px;">Görev için <strong>${req}</strong> kişi seç:</p>
-      ${G.players.map(p=>`<button class="btn btn-opt" id="b_${p}" onclick="toggleP('${p}',${req})">${p}</button>`).join('')}
-      <button class="btn btn-gold" style="margin-top:14px;" onclick="submitTeam(${req})">Takımı Oyla</button>
-    </div>`;
-}
-
-function toggleP(p, req) {
-  const btn = document.getElementById('b_'+p);
-  const i = G.sel.indexOf(p);
-  if(i > -1) { G.sel.splice(i,1); btn.classList.remove('active'); }
-  else if(G.sel.length < req) { G.sel.push(p); btn.classList.add('active'); }
-}
-
-function submitTeam(req) {
-  if(G.sel.length !== req) return alert(req + " kişi seçmelisiniz!");
-  document.getElementById('ui').innerHTML = `
-    <div class="card" style="text-align:center;">
-      <h3>Takım Oylaması</h3>
-      <p style="margin:12px 0;">Seçilen: <strong>${G.sel.join(', ')}</strong></p>
-      <button class="btn btn-blue" onclick="vote(true)">KABUL ET</button>
-      <button class="btn btn-red" onclick="vote(false)">REDDET</button>
-    </div>`;
-}
-
-function vote(appr) {
-  if(!appr) {
-    G.streak++;
-    G.lIdx = (G.lIdx+1)%G.players.length;
-    if(G.streak >= 5) return gameOver(false, "5 defa üst üste takım reddedildi!");
-    return renderTurn();
+  if(idx >= G.players.length) return renderBoardAndRound();
+  const player = G.players[idx];
+  const role = G.roles[player];
+  const info = ROLES[role];
+  
+  let hints = "";
+  if(role === "Merlin") {
+    const evils = G.players.filter(p => ["Assassin", "Morgana", "Minion of Mordred"].includes(G.roles[p]));
+    hints = "Kötülüğün Temsilcileri: " + evils.join(", ");
+  } else if(role === "Percival") {
+    const cands = G.players.filter(p => ["Merlin", "Morgana"].includes(G.roles[p])).sort(() => Math.random() - 0.5);
+    hints = "Merlin / Morgana Sinyali: " + cands.join(", ");
+  } else if(info.side === "evil") {
+    const mates = G.players.filter(p => ROLES[G.roles[p]].side === "evil" && p !== player);
+    hints = mates.length ? "Kötü Ekip Arkadaşların: " + mates.join(", ") : "Ekipte tek başınasın.";
   }
-  G.streak = 0;
-  G.qVotes = [];
-  G.lIdx = (G.lIdx+1)%G.players.length;
-  stepQuest(0);
-}
 
-function stepQuest(idx) {
-  if(idx >= G.sel.length) return finishQuest();
-  const m = G.sel[idx];
-  const r = G.roles[m];
-  const isEvil = ["Assassin","Morgana","Minion of Mordred"].includes(r);
-  document.getElementById('ui').innerHTML = `
-    <div class="card" style="text-align:center;">
-      <h3>Telefonu ${m} kişisine verin</h3>
-      <button class="btn btn-blue" onclick="this.style.display='none'; document.getElementById('qc').style.display='block';">Oy Ver</button>
-      <div id="qc" style="display:none; margin-top:12px;">
-        <button class="btn btn-blue" onclick="castQ(true, ${idx})">BAŞARILI (Success)</button>
-        ${isEvil ? `<button class="btn btn-red" onclick="castQ(false, ${idx})">SABOTAJA UĞRAT (Fail)</button>` : ''}
+  document.getElementById('app').innerHTML = `
+    <div class="card">
+      <div style="font-size:12px; color:var(--muted); text-align:center;">GİZLİ KİMLİK TESLİMİ</div>
+      <h3 style="text-align:center; margin:8px 0; color:var(--gold);">${player}</h3>
+      <div class="flip-box" onclick="haptic(); this.querySelector('.flip-inner').classList.toggle('flipped');">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <p>Yalnızca <strong>${player}</strong> ekrana baksın.</p>
+            <span style="font-size:12px; margin-top:8px; color:var(--gold);">Görmek için Dokun (Flip)</span>
+          </div>
+          <div class="flip-back">
+            <div style="font-size:12px; font-weight:bold; color:${info.side==='good'?'var(--good)':'var(--evil)'}">${info.side.toUpperCase()}</div>
+            <h2 style="margin:4px 0;">${role}</h2>
+            <p style="font-size:13px; color:var(--muted);">${info.desc}</p>
+            ${hints ? `<div style="background:#0b0f19; padding:8px; border-radius:6px; font-size:12px; margin-top:10px; width:100%; border:1px solid var(--border);">${hints}</div>` : ''}
+          </div>
+        </div>
       </div>
-    </div>`;
+      <button class="btn btn-gold" onclick="stepNight(${idx + 1})">Ezberledim, Sonraki Oyuncuya Ver</button>
+    </div>
+  `;
 }
 
-function castQ(val, idx) {
-  G.qVotes.push(val);
-  stepQuest(idx+1);
-}
-
-function finishQuest() {
-  G.qVotes.sort(()=>Math.random()-0.5);
-  const fails = G.qVotes.filter(x=>!x).length;
-  const needFails = (CFG[G.players.length][3] && G.quest===3) ? 2 : 1;
-  const ok = fails < needFails;
-  G.res.push(ok);
-  G.quest++;
-
-  document.getElementById('ui').innerHTML = `
-    <div class="card" style="text-align:center;">
-      <h2 style="color:${ok?'var(--good)':'var(--evil)'};">${ok?'GÖREV BAŞARILI':'GÖREV SABOTE EDİLDİ'}</h2>
-      <p style="margin:12px 0;">Açılan Fail Kartı: <strong>${fails}</strong></p>
-      <button class="btn btn-gold" onclick="checkGame()">Devam Et</button>
-    </div>`;
-}
-
-function checkGame() {
-  const goods = G.res.filter(x=>x).length;
-  const evils = G.res.filter(x=>!x).length;
-  if(evils >= 3) return gameOver(false, "Kötüler 3 görev sabote etti.");
-  if(goods >= 3) return renderAssassin();
-  renderTurn();
-}
-
-function renderAssassin() {
-  const goodP = G.players.filter(x=>!["Assassin","Morgana","Minion of Mordred"].includes(G.roles[x]));
-  document.getElementById('ui').innerHTML = `
-    <div class="card" style="text-align:center;">
-      <h3 style="color:var(--evil);">Suikastçi Evresi!</h3>
-      <p style="font-size:13px; margin:8px 0;">İyiler 3 görev tamamladı. Suikastçi Merlin'i tahmin etmeli:</p>
-      ${goodP.map(p=>`<button class="btn btn-red" onclick="kill('${p}')">${p}</button>`).join('')}
-    </div>`;
-}
-
-function kill(t) {
-  if(G.roles[t] === "Merlin") gameOver(false, `Suikastçi Merlin'i (${t}) vurdu!`);
-  else gameOver(true, `Suikastçi yanıldı! Hedef: ${t}, Merlin: ${G.players.find(x=>G.roles[x]==="Merlin")}`);
-}
-
-function gameOver(goodWin, reason) {
-  document.getElementById('ui').innerHTML = `
-    <div class="card" style="text-align:center;">
-      <h2 style="color:${goodWin?'var(--good)':'var(--evil)'}; margin-bottom:8px;">${goodWin?'İYİLER KAZANDI!':'KÖTÜLER KAZANDI!'}</h2>
-      <p style="font-size:14px; margin-bottom:12px;">${reason}</p>
-      <div style="text-align:left; background:#0f172a; padding:10px; border-radius:6px; font-size:13px;">
-        <strong>Roller:</strong><br>
-        ${G.players.map(p=>`${p}: <strong>${G.roles[p]}</strong>`).join('<br>')}
+function renderBoard() {
+  const cfg = CONFIGS[G.players.length];
+  const slotsHtml = cfg.quests.map((val, i) => {
+    let cls = "slot";
+    let icon = val;
+    if(i === G.questIdx) cls += " active";
+    if(G.questResults[i] === true)  { cls += " success"; icon = "✓"; }
+    if(G.questResults[i] === false) { cls += " fail";    icon = "✕"; }
+    return `
+      <div class="${cls}">
+        <div class="slot-sub">G ${i+1}</div>
+        <div class="slot-val">${icon}</div>
       </div>
-      <button class="btn btn-gold" style="margin-top:14px;" onclick="renderSetup()">Yeni Oyun</button>
-    </div>`;
+    `;
+  }).join('');
+
+  document.getElementById('boardArea').innerHTML = `
+    <div class="board-container">
+      <div class="board">${slotsHtml}</div>
+      <div class="trackers">
+        <span>Reddedilen Takım: <strong>${G.failTrack}/5</strong></span>
+        <span>Mevcut Lider: <strong>${G.players[G.leaderIdx]}</strong></span>
+      </div>
+    </div>
+  `;
 }
 
-renderSetup();
+function renderBoardAndRound() {
+  renderBoard();
+  const req = CONFIGS[G.players.length].quests[G.questIdx];
+  const leader = G.players[G.leaderIdx];
+  G.selectedTeam = [];
+
+  document.getElementById('app').innerHTML = `
+    <div class="card">
+      <div style="font-size:12px; color:var(--muted); text-align:center;">TAKIM KURMA AŞAMASI</div>
+      <h3 style="text-align:center; margin:6px 0;">Lider: <span style="color:var(--gold);">${leader}</span></h3>
+      <p style="font-size:13px; color:var(--muted); text-align:center; margin-bottom:12px;">Göreve gönderilecek <strong>${req}</strong> şövalyeyi belirle:</p>
+      <div id="selectionList">
+        ${G.players.map(p => `<button class="btn btn-ghost" id="btn_${p}" onclick="toggleSelect('${p}', ${req})">${p}</button>`).join('')}
+      </div>
+      <button class="btn btn-gold" style="margin-top:14px;" onclick="startTeamVote(${req})">Takımı Onayla ve Açık Oylamaya Geç</button>
+    </div>
+  `;
+}
+
+function toggleSelect(p, max) {
+  haptic(25);
+  const btn = document.getElementById('btn_' + p);
+  const idx = G.selectedTeam.indexOf(p);
+  if(idx > -1) {
+    G.selectedTeam.splice(idx, 1);
+    btn.classList.remove('selected');
+  } else {
+    if(G.selectedTeam.length < max) {
+      G.selectedTeam.push(p);
+      btn.classList.add('selected');
+    }
+  }
+}
+
+// DÜZELTİLEN TAKIM OYLAMASI: Masa oylaması (Tek ekranda herkesin oyu girilir)
+function startTeamVote(req) {
+  if(G.selectedTeam.length !== req) return alert(`Lütfen tam olarak ${req} kişi seçin!`);
+  
+  // Varsayılan olarak kimse seçili değil (null)
+  G.teamVotes = {};
+  G.players.forEach(p => G.teamVotes[p] = null);
+
+  renderOpenVoteScreen();
+}
+
+function renderOpenVoteScreen() {
+  const leader = G.players[G.leaderIdx];
+  
+  const rows = G.players.map(p => `
+    <div class="vote-row">
+      <span style="font-weight:600; font-size:14px;">${p}</span>
+      <div class="vote-toggles">
+        <button class="btn-mini ${G.teamVotes[p] === true ? 'active-good' : ''}" onclick="setVote('${p}', true)">KABUL</button>
+        <button class="btn-mini ${G.teamVotes[p] === false ? 'active-evil' : ''}" onclick="setVote('${p}', false)">RED</button>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="card">
+      <div style="font-size:12px; color:var(--muted); text-align:center;">MASA AÇIK OYLAMASI</div>
+      <h3 style="text-align:center; margin:6px 0;">Önerilen Takım</h3>
+      <p style="text-align:center; color:var(--gold); font-weight:bold; margin-bottom:12px;">${G.selectedTeam.join(', ')}</p>
+      <p style="font-size:12px; color:var(--muted); text-align:center; margin-bottom:12px;">
+        Masada aynı anda el kaldırın/kart açın. Lider (${leader}) oyları girsin:
+      </p>
+      <div class="vote-grid">${rows}</div>
+      <button class="btn btn-gold" onclick="submitOpenTeamVote()">Oylamayı Sonuçlandır</button>
+    </div>
+  `;
+}
+
+function setVote(player, val) {
+  haptic(25);
+  G.teamVotes[player] = val;
+  renderOpenVoteScreen();
+}
+
+function submitOpenTeamVote() {
+  const missing = Object.entries(G.teamVotes).filter(([_, v]) => v === null);
+  if(missing.length > 0) {
+    return alert(`Lütfen tüm oyuncuların oylarını girin! (${missing.map(m=>m[0]).join(', ')} eksik)`);
+  }
+
+  const accepts = Object.values(G.teamVotes).filter(v => v === true).length;
+  const rejects = Object.values(G.teamVotes).filter(v => v === false).length;
+  
+  // Orijinal kural: Eşitlik durumunda TAKIM REDDEDİLİR. Geçmesi için kesin çoğunluk (Kabul > Red) gerekir.
+  const passed = accepts > rejects;
+
+  haptic(60);
+  
+  document.getElementById('app').innerHTML = `
+    <div class="card" style="text-align:center;">
+      <h2 style="color:${passed?'var(--good)':'var(--evil)'}; margin-bottom:8px;">
+        ${passed ? 'TAKIM KABUL EDİLDİ!' : 'TAKIM REDDEDİLDİ!'}
+      </h2>
+      <p style="font-size:14px; margin-bottom:14px;">
+        Kabul: <strong style="color:var(--good);">${accepts}</strong> | Red: <strong style="color:var(--evil);">${rejects}</strong>
+      </p>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:14px;">
+        ${passed ? 'Takım göreve çıkıyor.' : 'Liderlik sıradaki oyuncuya devrediliyor.'}
+      </p>
+      <button class="btn btn-gold" onclick="applyTeamVoteResult(${passed})">Devam Et</button>
+    </div>
+  `;
+}
+
+function applyTeamVoteResult(passed) {
+  if(!passed) {
+    G.failTrack++;
+    G.leaderIdx = (G.leaderIdx + 1) % G.players.length;
+    if(G.failTrack >= 5) {
+      return renderGameOver(false, "5 kez üst üste önerilen takım reddedildi! Kötüler kaostan faydalanıp kazandı.");
+    }
+    return renderBoardAndRound();
+  }
+
+  // Takım kabul edilirse red sayacı sıfırlanır
+  G.failTrack = 0;
+  G.questCards = [];
+  G.questCardIndex = 0;
+  stepQuestCast();
+}
+
+// 4. Evre: Görev Kartı Seçimi (Gizli)
+function stepQuestCast() {
+  if(G.questCardIndex >= G.selectedTeam.length) return revealQuestResult();
+  const member = G.selectedTeam[G.questCardIndex];
+  const role = G.roles[member];
+  const isEvil = ROLES[role].side === "evil";
+
+  document.getElementById('app').innerHTML = `
+    <div class="card" style="text-align:center;">
+      <div style="font-size:12px; color:var(--muted);">GÖREV KARTI (${G.questCardIndex+1}/${G.selectedTeam.length})</div>
+      <h3 style="margin:8px 0;">Telefonu Şövalye <span style="color:var(--gold);">${member}</span> Kişisine Verin</h3>
+      <div id="castBox" style="display:none; margin-top:14px;">
+        <button class="btn btn-good" onclick="recordQuestVote(true)">BAŞARILI (Success)</button>
+        ${isEvil ? `<button class="btn btn-evil" onclick="recordQuestVote(false)">SABOTAJA UĞRAT (Fail)</button>` : ''}
+      </div>
+      <button id="castReveal" class="btn btn-gold" onclick="haptic(); this.style.display='none'; document.getElementById('castBox').style.display='block';">Gizli Kararını Ver</button>
+    </div>
+  `;
+}
+
+function recordQuestVote(val) {
+  haptic(45);
+  G.questCards.push(val);
+  G.questCardIndex++;
+  stepQuestCast();
+}
+
+function revealQuestResult() {
+  G.questCards.sort(() => Math.random() - 0.5);
+  const fails = G.questCards.filter(c => c === false).length;
+  const cfg = CONFIGS[G.players.length];
+  const needTwoFails = cfg.twoFails && G.questIdx === 3;
+  const reqFails = needTwoFails ? 2 : 1;
+  const questSuccess = fails < reqFails;
+
+  G.questResults.push(questSuccess);
+  G.questIdx++;
+  G.leaderIdx = (G.leaderIdx + 1) % G.players.length;
+
+  document.getElementById('app').innerHTML = `
+    <div class="card" style="text-align:center;">
+      <h2 style="color:${questSuccess?'var(--good)':'var(--evil)'}; margin-bottom:8px;">
+        ${questSuccess ? 'GÖREV BAŞARILI!' : 'GÖREV SABOTE EDİLDİ!'}
+      </h2>
+      <p style="font-size:14px; margin-bottom:12px;">Kutudan Çıkan Sabotaj Kartı: <strong style="color:var(--evil); font-size:18px;">${fails}</strong></p>
+      ${needTwoFails ? '<p style="font-size:11px; color:var(--muted); margin-bottom:8px;">(4. Görev kuralı: En az 2 Sabotaj kartı gerekiyordu)</p>' : ''}
+      <button class="btn btn-gold" onclick="checkVictoryConditions()">Sonraki Tura Geç</button>
+    </div>
+  `;
+  renderBoard();
+}
+
+function checkVictoryConditions() {
+  haptic(50);
+  const goodWins = G.questResults.filter(r => r === true).length;
+  const evilWins = G.questResults.filter(r => r === false).length;
+
+  if(evilWins >= 3) {
+    return renderGameOver(false, "Kötülüğün ajanları 3 görevi sabote etmeyi başardı.");
+  }
+  if(goodWins >= 3) {
+    return renderAssassinPhase();
+  }
+  renderBoardAndRound();
+}
+
+function renderAssassinPhase() {
+  const assassin = G.players.find(p => G.roles[p] === "Assassin") || "Kötülerin Suikastçisi";
+  const candidates = G.players.filter(p => ROLES[G.roles[p]].side === "good");
+
+  document.getElementById('app').innerHTML = `
+    <div class="card" style="text-align:center;">
+      <h3 style="color:var(--evil); margin-bottom:6px;">SUİKASTÇİ EVRESİ</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
+        İyiler 3 görev tamamladı! Ancak Suikastçi (<strong style="color:#fff;">${assassin}</strong>) Merlin'i vurursa Kötüler kazanır:
+      </p>
+      ${candidates.map(p => `<button class="btn btn-evil" onclick="resolveAssassination('${p}')">${p}</button>`).join('')}
+    </div>
+  `;
+}
+
+function resolveAssassination(target) {
+  haptic(60);
+  const merlin = G.players.find(p => G.roles[p] === "Merlin");
+  if(target === merlin) {
+    renderGameOver(false, `Suikastçi Merlin'i (${merlin}) başarıyla vurdu!`);
+  } else {
+    renderGameOver(true, `Suikastçi yanıldı! Hedef: ${target}, Gerçek Merlin: ${merlin}.`);
+  }
+}
+
+function renderGameOver(goodWon, details) {
+  document.getElementById('app').innerHTML = `
+    <div class="card" style="text-align:center;">
+      <h1 style="color:${goodWon?'var(--good)':'var(--evil)'}; font-size:24px; margin-bottom:8px;">
+        ${goodWon ? 'İYİLER ZAFER KAZANDI!' : 'KÖTÜLER HAKİM OLDU!'}
+      </h1>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">${details}</p>
+      
+      <div style="text-align:left; background:#0b0f19; padding:12px; border-radius:10px; border:1px solid var(--border); margin-bottom:16px;">
+        <div style="font-size:12px; font-weight:bold; color:var(--gold); margin-bottom:6px;">KİMLİK DÖKÜMÜ:</div>
+        ${G.players.map(p => `
+          <div style="display:flex; justify-content:space-between; font-size:13px; padding:3px 0;">
+            <span>${p}</span>
+            <strong style="color:${ROLES[G.roles[p]].side==='good'?'var(--good)':'var(--evil)'}">${G.roles[p]}</strong>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn btn-gold" onclick="renderStart()">Yeni Oyun Kur</button>
+    </div>
+  `;
+}
+
+renderStart();
 </script>
 </body>
 </html>
+EOF
