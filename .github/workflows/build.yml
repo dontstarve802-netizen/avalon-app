@@ -15,35 +15,36 @@ jobs:
       - name: Java Kur
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: 17
-
-      - name: Android SDK Kur
-        uses: android-actions/setup-android@v3
 
       - name: Node.js Kur
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Web Dizinini Olustur
+      - name: Web Klasorunu Hazirla
         run: |
           mkdir -p dist
           cp index.html dist/
 
-      - name: Capacitor Hazirla
+      - name: Capacitor Kurulumu
         run: |
           npm init -y
-          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
-          npx cap init Avalon com.oyun.avalon --web-dir dist
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init "Avalon" "com.oyun.avalon" --web-dir dist
           npx cap add android
           npx cap sync android
 
-      - name: Gradle APK Derle
+      - name: Android SDK Lisanslarini Onayla
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Gradle ile APK Derle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug --no-daemon
 
       - name: APK Dosyasini Yukle
         uses: actions/upload-artifact@v4
