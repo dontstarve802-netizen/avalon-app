@@ -1,0 +1,44 @@
+name: Android APK Derle
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repoyu Cek
+        uses: actions/checkout@v4
+
+      - name: Node.js Kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Java Kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Android Projesini Olustur
+        run: |
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init Avalon com.oyun.avalon --web-dir .
+          npx cap add android
+          npx cap sync android
+
+      - name: Gradle ile APK Derle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: APK'yi Yukle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Avalon-Oyunu-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
