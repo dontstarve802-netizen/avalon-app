@@ -12,26 +12,26 @@ jobs:
       - name: Repoyu Cek
         uses: actions/checkout@v4
 
-      - name: Java Kur
+      - name: Java 21 Kur
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: '21'
 
-      - name: Node.js Kur
+      - name: Node.js 20 Kur
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Web Klasorunu Hazirla
+      - name: Web Dizinini Olustur
         run: |
           mkdir -p dist
           cp index.html dist/
 
-      - name: Capacitor Kurulumu
+      - name: Capacitor Projesini Kur
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@^6.0.0 @capacitor/cli@^6.0.0 @capacitor/android@^6.0.0
           npx cap init "Avalon" "com.oyun.avalon" --web-dir dist
           npx cap add android
           npx cap sync android
@@ -40,14 +40,22 @@ jobs:
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
+      - name: Gradle JVM Bellek ve Ayarlarini Optimize Et
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
+
       - name: Gradle ile APK Derle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: APK Dosyasini Yukle
         uses: actions/upload-artifact@v4
         with:
           name: Avalon-Oyunu-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
