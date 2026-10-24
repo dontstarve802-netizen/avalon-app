@@ -12,37 +12,40 @@ jobs:
       - name: Repoyu Cek
         uses: actions/checkout@v4
 
-      - name: Node.js Kur
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Java Kur
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: 17
 
-      - name: Web Dizinini Hazirla
-        run: |
-          mkdir -p www
-          cp index.html www/
+      - name: Android SDK Kur
+        uses: android-actions/setup-android@v3
 
-      - name: Capacitor ile Android Olustur
+      - name: Node.js Kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Web Dizinini Olustur
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+
+      - name: Capacitor Hazirla
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "Avalon" "com.oyun.avalon" --web-dir www
+          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
+          npx cap init Avalon com.oyun.avalon --web-dir dist
           npx cap add android
           npx cap sync android
 
-      - name: Gradle Build
+      - name: Gradle APK Derle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --stacktrace
 
-      - name: APK'yi Yukle
+      - name: APK Dosyasini Yukle
         uses: actions/upload-artifact@v4
         with:
           name: Avalon-Oyunu-APK
