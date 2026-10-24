@@ -23,19 +23,24 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
-      - name: Android Projesini Olustur
+      - name: Web Dizinini Hazirla
+        run: |
+          mkdir -p www
+          cp index.html www/
+
+      - name: Capacitor ile Android Olustur
         run: |
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init Avalon com.oyun.avalon --web-dir .
+          npx cap init "Avalon" "com.oyun.avalon" --web-dir www
           npx cap add android
           npx cap sync android
 
-      - name: Gradle ile APK Derle
+      - name: Gradle Build
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: APK'yi Yukle
         uses: actions/upload-artifact@v4
